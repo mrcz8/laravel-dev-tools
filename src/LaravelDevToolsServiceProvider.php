@@ -11,15 +11,17 @@ class LaravelDevToolsServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->commands([
-            ListPoliciesCommand::class,
-            ModelRelationsCommand::class,
-            RouteMissingAuthorizationCommand::class,
-        ]);
+        //
     }
 
     public function boot()
     {
-        //
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ListPoliciesCommand::class,
+                ModelRelationsCommand::class,
+                RouteMissingAuthorizationCommand::class,
+            ]);
+        }
     }
 }

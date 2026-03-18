@@ -10,7 +10,7 @@ A Laravel package providing artisan commands to improve security and maintainabi
 If you want to install directly GitHub repository:
 
 1. Add this repository to your Laravel project's composer.json:
-    ```repo
+    ```json
     "repositories": [
         {
             "type": "vcs",
@@ -19,8 +19,8 @@ If you want to install directly GitHub repository:
     ]
     ```
 2. Require the package:
-    ```composer
-    composer require tawin/laravel-dev-tools:main
+    ```bash
+    composer require tawin/laravel-dev-tools:dev-main
     ```
 ---
 ## Usage

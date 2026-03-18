@@ -3,7 +3,7 @@
 namespace Tawin\LaravelDevTools\Commands;
 
 use Illuminate\Console\Command;
-use App\Providers\AuthServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class ListPoliciesCommand extends Command
 {
@@ -12,15 +12,18 @@ class ListPoliciesCommand extends Command
 
     public function handle()
     {
-        $policies = app(AuthServiceProvider::class)->policies;
+        $policies = Gate::policies();
 
         if (empty($policies)) {
             $this->info('No policies registered.');
             return;
         }
 
+        $rows = [];
         foreach ($policies as $model => $policy) {
-            $this->line("$model => $policy");
+            $rows[] = [$model, $policy];
         }
+
+        $this->table(['Model', 'Policy'], $rows);
     }
 }

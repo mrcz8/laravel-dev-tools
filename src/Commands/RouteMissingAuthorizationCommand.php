@@ -10,23 +10,50 @@ class RouteMissingAuthorizationCommand extends Command
     protected $signature = 'route:missing-authorization';
     protected $description = 'List routes without auth middleware or policies';
 
+    protected array $authMiddleware = [
+        'auth',
+        'auth:',
+        'can:',
+        'auth.basic',
+    ];
+
     public function handle()
     {
         $routes = collect(Route::getRoutes())->filter(function ($route) {
-            $middleware = $route->gatherMiddleware();
-            return !collect($middleware)->contains(function ($m) {
-                return str_contains($m, 'auth') || str_contains($m, 'can:');
+            $middleware = collect($route->gatherMiddleware());
+
+            return !$middleware->contains(function ($m) {
+                if (!is_string($m)) {
+                    return false;
+                }
+
+                foreach ($this->authMiddleware as $auth) {
+                    if ($m === $auth || str_starts_with($m, $auth)) {
+                        return true;
+                    }
+                }
+
+                return false;
             });
         });
 
         if ($routes->isEmpty()) {
-            $this->info("All routes have authorization middleware or policies.");
-            return;
+            $this->info('All routes have authorization middleware or policies.');
+            return 0;
         }
 
-        $this->info("Routes missing authorization:");
+        $rows = [];
         foreach ($routes as $route) {
-            $this->line($route->uri());
+            $rows[] = [
+                implode('|', $route->methods()),
+                $route->uri(),
+                $route->getActionName(),
+            ];
         }
+
+        $this->info('Routes missing authorization:');
+        $this->table(['Method', 'URI', 'Action'], $rows);
+
+        return 1;
     }
 }
